@@ -116,7 +116,7 @@ int main(void){
 
     mbedtls_pk_context pk_pub;//para a chave publica
     mbedtls_pk_init( &pk_pub );
-    //mbedtls_pk_free(&pk_pub);
+    mbedtls_pk_free(&pk_pub);
     //unsigned char sig[4096];
 
 
@@ -154,23 +154,9 @@ int main(void){
     }
 
 
-/*
-    unsigned char** buf;
-    size_t bu;
-
-    if ((mbedtls_pk_load_file("keys/cloud_public.pem",buf, &bu ))==0){
-        printf("LOADED CLOUD PUBLIC KEY\n");
-
-    }else{
-        printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
-    }
-
-*/
-
-    //printf("cva");
 
 
-    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,"keys/00cloud_public.pem"))==0){
+    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,"keys/cloud_public.pem"))==0){
         printf("LOADED CLOUD PUBLIC KEY\n");
 
     }else{
@@ -245,9 +231,17 @@ int main(void){
 
 
 
+
         if ((mbedtls_pk_sign(&pk,MBEDTLS_MD_SHA256,output,sizeof(output),sig,&olen,mbedtls_ctr_drbg_random,&ctr_drbg))==0){
             printf("Success in the process of signing! \n\n");
         }
+
+        unsigned char* to_send;
+
+        olen = 0;
+
+
+
         //printf("tamanho da assinatura %i\n", sizeof(sig));
         //printf("tamanho do pkg %i\n ",sizeof(pkg_send));
 
@@ -257,9 +251,27 @@ int main(void){
             }
 
 
+
+        if ((mbedtls_pk_encrypt(&pk_pub,
+                                dst,
+                                sizeof(dst),
+                                to_send,
+                                &olen,
+                                sizeof(to_send)
+                                ,mbedtls_ctr_drbg_random,
+                                &ctr_drbg))==0){
+
+            printf("Success in the process of CRYPT! \n\n");
+        }else{
+            printf("EREOOOOOOOOO in the process of CRYPT! \n\n");
+        }
+
+        printf("%s\n",to_send);
+
+
         send(clientSocket, dst, sizeof dst, 0);
         close(clientSocket);
-        printf("Assinatura em base64: %s \n\n",dst);
+        //printf("Assinatura em base64: %s \n\n",dst);
 
         //printf("tamanho da base64 %l", sizeof(dst));
 
