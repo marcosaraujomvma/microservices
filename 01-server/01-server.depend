@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1496343269 source:/home/marcos/MEGA/gitlab/microservicos-c/01-server/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<errno.h>
+	<pthread.h>
+
