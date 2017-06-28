@@ -243,7 +243,8 @@ int main(void){
         send(clientSocket, dst, sizeof dst, 0); // envia o pacote para o servidor
         close(clientSocket);
 
-        printf("\nSent with success!!\n=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\n");
+        printf("\nSent with success!!\n\
+        ====================================================================\n");
             //}
 
     }
