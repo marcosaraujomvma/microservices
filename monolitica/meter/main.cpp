@@ -1,4 +1,4 @@
-/****************** METER CODE ****************/
+/****************** Server CODE ****************/
 // Marcos Araújo
 
 #if !defined(MBEDTLS_CONFIG_FILE)
