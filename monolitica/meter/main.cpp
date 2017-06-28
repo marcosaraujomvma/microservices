@@ -134,7 +134,7 @@ int main(void){
 
 
      //base64
-     unsigned char dst[1048576];
+     unsigned char dst[10000];
      //memset(dst, '\0',sizeof(dst));
      //const unsigned char* src;
      size_t b64olen = 0;
@@ -236,7 +236,7 @@ int main(void){
             printf("Success in the process of signing! \n\n");
         }
 
-        unsigned char* to_send;
+        unsigned char to_send[1024];
 
         olen = 0;
 
@@ -245,20 +245,18 @@ int main(void){
         //printf("tamanho da assinatura %i\n", sizeof(sig));
         //printf("tamanho do pkg %i\n ",sizeof(pkg_send));
 
-        if ((mbedtls_base64_encode(dst,sizeof(dst),&b64olen,sig,sizeof(sig)))==0){
-            printf("SUCESSO BASE 64\n\n");
-            //printf("Assinatura em base64: %s \n\n",dst);
-            }
 
 
 
-        if ((mbedtls_pk_encrypt(&pk_pub,
-                                dst,
-                                sizeof(dst),
+        int ret;
+        char error_str[256];
+        if ((ret = mbedtls_pk_encrypt(&pk_pub,
+                                (unsigned char *)sig,
+                                olen,
                                 to_send,
                                 &olen,
-                                sizeof(to_send)
-                                ,mbedtls_ctr_drbg_random,
+                                sizeof(to_send),
+                                mbedtls_ctr_drbg_random,
                                 &ctr_drbg))==0){
 
             printf("Success in the process of CRYPT! \n\n");
@@ -266,7 +264,19 @@ int main(void){
             printf("EREOOOOOOOOO in the process of CRYPT! \n\n");
         }
 
-        printf("%s\n",to_send);
+
+        mbedtls_strerror(ret, error_str, sizeof error_str);
+        printf("%s\n",error_str);
+
+
+            if ((mbedtls_base64_encode(dst,sizeof(dst),&b64olen,to_send,sizeof(to_send)))==0){
+            printf("SUCESSO BASE 64\n\n");
+            //printf("Assinatura em base64: %s \n\n",dst);
+            }
+            printf("Mensagem criptografada: %s\n",dst);
+
+
+        //printf("%s\n",to_send);
 
 
         send(clientSocket, dst, sizeof dst, 0);
