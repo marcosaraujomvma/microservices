@@ -37,69 +37,10 @@
 #include "include/mbedtls/sha256.h"
 #include "include/mbedtls/base64.h"
 
-/*
-int sendData(unsigned char content[1048576]){
-
-	  int clientSocket;
-	  char buffer[1048576];
-	  memset(buffer, '\0',1048576);
-      struct sockaddr_in serverAddr;
-      socklen_t addr_size;
-
-
-	  /*---- Create the socket. The three arguments are: ----*/
-	  /* 1) Internet domain 2) Stream socket 3) Default protocol (TCP in this case) */
-	  /*
-	  clientSocket = socket(PF_INET, SOCK_STREAM, 0);
-
-	  /*---- Configure settings of the server address struct ----*/
-	  /* Address family = Internet */
-	  /*serverAddr.sin_family = AF_INET;
-	  /* Set port number, using htons function to use proper byte order */
-	  /*serverAddr.sin_port = htons(10010);
-	  /* Set IP address to localhost */
-	  /*serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	  /* Set all bits of the padding field to 0 */
-	  /*memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
-
-	  /*---- Connect the socket to the server using the address struct ----*/
-	  /*addr_size = sizeof serverAddr;
-
-	  connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
-
-
-
-	  send(clientSocket, content, sizeof(content), 0);
-
-
-	  /*---- Read the message from the server into the buffer ----*/
-	  /*recv(clientSocket, buffer,1048576, 0);
-
-	  /*---- Print the received message ----*/
-	  /*printf("Data received: %s\n\n",buffer);
-	  close(clientSocket);
-
-	  return 1;
-
-
-	}
-
-
-unsigned char* sha256(const unsigned char* input){
-    int tamanho = sizeof(input);
-	int is224 = 0;
-	unsigned char output[32];
-	mbedtls_sha256((const unsigned char*)input, tamanho, output,is224);
-	printf("output %s\n\n",output);
-
-	return output;
-}
-*/
-
 int main(void){
 
     int metering;// value of mettering
-    char id_meter[100];
+    char id_meter[100]; // identificafdor unico do medidor
     char* pkg;
     char build_pkg[100];// auxiliar
     char* pkg_send;
@@ -108,19 +49,21 @@ int main(void){
 
     unsigned char content;
 
+
+    //geração da estrtura da chave publica
     mbedtls_pk_context pk;
     mbedtls_pk_init( &pk );
     mbedtls_pk_free(&pk);
-    unsigned char sig[4096];
-
+    //geração da estrtura da chave publica
 
     mbedtls_pk_context pk_pub;//para a chave publica
     mbedtls_pk_init( &pk_pub );
     mbedtls_pk_free(&pk_pub);
-    //unsigned char sig[4096];
+    // fim da geração da estrutu da chave publica
 
+    unsigned char sig[4096]; // saida da assinatura, essa é a vareavel de saida
 
-            /*Entropia*/
+            /*Geração da entropia*/
      mbedtls_ctr_drbg_context ctr_drbg;
      mbedtls_ctr_drbg_free(&ctr_drbg);
      mbedtls_ctr_drbg_init( &ctr_drbg );
@@ -128,25 +71,25 @@ int main(void){
      mbedtls_entropy_context entropy;
      mbedtls_entropy_init(&entropy);
 
-     mbedtls_ctr_drbg_seed(&ctr_drbg,mbedtls_entropy_func,&entropy,NULL,0);
+     mbedtls_ctr_drbg_seed(&ctr_drbg,
+                            mbedtls_entropy_func,
+                            &entropy,
+                            NULL,
+                            0);
 
             /*FIM Entropia*/
 
 
-     //base64
-     unsigned char dst[10000];
-     //memset(dst, '\0',sizeof(dst));
-     //const unsigned char* src;
-     size_t b64olen = 0;
 
-     //fim base64
+     unsigned char dst[10000]; // variavel de saido do hash, essa variavel é o hash
+     size_t b64olen = 0;// olen do base  64
+     size_t olen = 0; // olen da assinatura e criptografia
 
 
-    size_t olen = 0;
-
-
-
-    if ((mbedtls_pk_parse_keyfile(&pk,"keys/meter_sign",NULL))==0){
+    // carregar a chave privada do medidorr
+    if ((mbedtls_pk_parse_keyfile(&pk,
+                                "keys/meter_sign",
+                                NULL))==0){
         printf("LOADED PRIVATE KEY\n");
 
     }else{
@@ -156,7 +99,9 @@ int main(void){
 
 
 
-    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,"keys/cloud_public.pem"))==0){
+    // carrega a chave publica da nuvem
+    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,
+                                        "keys/cloud_public.pem"))==0){
         printf("LOADED CLOUD PUBLIC KEY\n");
 
     }else{
@@ -174,9 +119,9 @@ int main(void){
 
 
       int clientSocket;
-	  char buffer[1048576];
-	  memset(buffer, '\0',1048576);
-      struct sockaddr_in serverAddr;
+	  char buffer[1048576];// buffer do socket para enviar ate 1 mega
+	  memset(buffer, '\0',1048576); // zera o buffer do socket
+      struct sockaddr_in serverAddr; // estrutura do socket
       socklen_t addr_size;
 
 
@@ -232,7 +177,15 @@ int main(void){
 
 
 
-        if ((mbedtls_pk_sign(&pk,MBEDTLS_MD_SHA256,output,sizeof(output),sig,&olen,mbedtls_ctr_drbg_random,&ctr_drbg))==0){
+        if ((mbedtls_pk_sign(&pk,
+                            MBEDTLS_MD_SHA256,
+                            output,
+                            sizeof(output),
+                            sig,
+                            &olen,
+                            mbedtls_ctr_drbg_random,
+                            &ctr_drbg))==0){
+
             printf("Success in the process of signing! \n\n");
         }
 
@@ -269,10 +222,11 @@ int main(void){
         printf("%s\n",error_str);
 
 
-            if ((mbedtls_base64_encode(dst,sizeof(dst),&b64olen,to_send,sizeof(to_send)))==0){
+        if ((mbedtls_base64_encode(dst,sizeof(dst),&b64olen,to_send,sizeof(to_send)))==0){
             printf("SUCESSO BASE 64\n\n");
             //printf("Assinatura em base64: %s \n\n",dst);
             }
+
             printf("Mensagem criptografada: %s\n",dst);
 
 
