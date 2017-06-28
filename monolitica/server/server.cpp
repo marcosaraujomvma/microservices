@@ -5,13 +5,15 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include "include/mbedtls/base64.h"
+#include "include/mbedtls/error.h"
 
 int main(){
-  int welcomeSocket, newSocket;
-  char buffer[8192];
+  int welcomeSocket, newSocket; // criar o socket
+  char buffer[8192]; // buffer do socket
   memset(buffer, '\0',8192);
-  char buffer_rec[8192];
-  memset(buffer_rec, '\0',8192);
+  char buffer_rec[8192]; // bufer que rece os dados
+  memset(buffer_rec, '\0',8192); // zera o buffer que receb os dados
   struct sockaddr_in serverAddr;
   struct sockaddr_storage serverStorage;
   socklen_t addr_size;
@@ -40,6 +42,13 @@ int main(){
     printf("Error\n");
 
 
+  unsigned char b64decode[2048]; // variavel de saida do decode do base 64
+  size_t b64olen = 0;
+
+  int ret = 0;
+  char error_str[256];
+
+
    while (1){
 	  /*---- Accept call creates a new socket for the incoming connection ----*/
 	  addr_size = sizeof serverStorage;
@@ -49,7 +58,24 @@ int main(){
       //printf("%s",
       printf("Tamanho do buffer  %i",sizeof buffer_rec);
 	  printf("Data received: %s\n\n",buffer_rec);
-	   /*---- Send message to the socket of the incoming connection ----*/
+
+	  ret = mbedtls_base64_decode(  b64decode,
+                                    sizeof(b64olen),
+                                    &b64olen,
+                                    (const unsigned char*)buffer_rec,
+                                    sizeof(buffer_rec));
+
+     if (ret == 0){
+        printf("Base 64 decodificado com sucesso!!\n");
+        }else{
+        printf("ERRO de decodificar o base 64!!\n");
+
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+        }
+    /*---- Send message to the socket of the incoming connection ----*/
+
+
 	  strcpy(buffer,"Hello World\n");
 	  send(newSocket,buffer,13,0);
 	  //close(newSocket);

@@ -13,3 +13,18 @@
 	<string.h>
 	<arpa/inet.h>
 
+1498676720 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/server.cpp
+	<stdio.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<string.h>
+	<arpa/inet.h>
+	"include/mbedtls/base64.h"
+	"include/mbedtls/error.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/base64.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/error.h
+	<stddef.h>
+
