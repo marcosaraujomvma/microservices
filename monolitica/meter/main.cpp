@@ -153,8 +153,10 @@ int main(void){
         printf("ERRO!!! NO LOAD PRIVATE KEY\n");
     }
 
+
+/*
     unsigned char** buf;
-    size_t bu = 0;
+    size_t bu;
 
     if ((mbedtls_pk_load_file("keys/cloud_public.pem",buf, &bu ))==0){
         printf("LOADED CLOUD PUBLIC KEY\n");
@@ -163,8 +165,10 @@ int main(void){
         printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
     }
 
-    printf("");
-/*
+*/
+
+    //printf("cva");
+
 
     if ((mbedtls_pk_parse_public_keyfile(&pk_pub,"keys/00cloud_public.pem"))==0){
         printf("LOADED CLOUD PUBLIC KEY\n");
@@ -172,7 +176,7 @@ int main(void){
     }else{
         printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
     }
-*/
+
 
 
     printf("Enter the meter id:\n\n");
