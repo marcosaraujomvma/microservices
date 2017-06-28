@@ -42,7 +42,7 @@ int main(void){
     int metering;// value of mettering
     char id_meter[100]; // identificafdor unico do medidor
     char* pkg;
-    char build_pkg[100];// auxiliar
+    char build_pkg[2048];// auxiliar
     char* pkg_send;
 
 
@@ -62,6 +62,7 @@ int main(void){
     // fim da geração da estrutu da chave publica
 
     unsigned char sig[4096]; // saida da assinatura, essa é a vareavel de saida
+    unsigned char to_send[1024]; // variavel de saida da criptografia
 
             /*Geração da entropia*/
      mbedtls_ctr_drbg_context ctr_drbg;
@@ -160,23 +161,24 @@ int main(void){
 
         pkg = build_pkg; //pkg to sign
 
+
+
         /* Generates the hash */
         int tamanho = sizeof((const unsigned char*)pkg);
         int is224 = 0;
         unsigned char output[32];
         memset(output, '0',32);
-        mbedtls_sha256((const unsigned char*)pkg, tamanho, output,is224);
 
-    //    if(output)!=0){
-      //      printf("HASH OK");
-        //}
-        //printf("Package hash:  %s \n\n",output);
+        mbedtls_sha256((const unsigned char*)pkg,
+                        tamanho,
+                        output,
+                        is224);
         /* fim Generates the hash */
 
 
 
 
-
+        // processo de assinar o pacote
         if ((mbedtls_pk_sign(&pk,
                             MBEDTLS_MD_SHA256,
                             output,
@@ -188,21 +190,22 @@ int main(void){
 
             printf("Success in the process of signing! \n\n");
         }
-
-        unsigned char to_send[1024];
+        // fim do processo de criptografar o hash
 
         olen = 0;
 
+        int ret; // variavel usada para teste de retorno
+
+        char error_str[256]; // variavel de string de erro
 
 
-        //printf("tamanho da assinatura %i\n", sizeof(sig));
-        //printf("tamanho do pkg %i\n ",sizeof(pkg_send));
+        snprintf(build_pkg,sizeof(build_pkg),"%s;%s;%s",id_meter,metering,sig); //pkg
 
 
+        //pkg = build_pkg; //pkg to sign
 
 
-        int ret;
-        char error_str[256];
+        // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
                                 (unsigned char *)sig,
                                 olen,
@@ -214,41 +217,36 @@ int main(void){
 
             printf("Success in the process of CRYPT! \n\n");
         }else{
-            printf("EREOOOOOOOOO in the process of CRYPT! \n\n");
+            printf("ERROOOOOOOOO in the process of CRYPT! \n\n");
         }
 
-
-        mbedtls_strerror(ret, error_str, sizeof error_str);
-        printf("%s\n",error_str);
+        // FIM processo de criptografar o pacote
 
 
-        if ((mbedtls_base64_encode(dst,sizeof(dst),&b64olen,to_send,sizeof(to_send)))==0){
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+
+
+        // codifica em base 64 para enviar os  dados
+        if ((mbedtls_base64_encode(dst,
+                                sizeof(dst),
+                                &b64olen,
+                                to_send,
+                                sizeof(to_send)))==0){
             printf("SUCESSO BASE 64\n\n");
             //printf("Assinatura em base64: %s \n\n",dst);
             }
 
-            printf("Mensagem criptografada: %s\n",dst);
-
+            //printf("Mensagem criptografada: %s\n",dst);
+        // codifica em base 64 para enviar os  dados
 
         //printf("%s\n",to_send);
 
 
-        send(clientSocket, dst, sizeof dst, 0);
+        send(clientSocket, dst, sizeof dst, 0); // envia o pacote para o servidor
         close(clientSocket);
-        //printf("Assinatura em base64: %s \n\n",dst);
 
-        //printf("tamanho da base64 %l", sizeof(dst));
-
-
-        //printf("%i",sizeof(pkg));
-        //content = (unsigned char [1048576])sig;
-        //stpcpy(content,sig);
-//        snprintf (pkg_send,1048576,"%s;%s",pkg,dst);
-        //printf("\n%s\n",sig);
-
-        //int return_sendData = sendData(content);
-        //if (return_sendData ==1){
-          //  printf("%s \nSent with success!!\n=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\n",pkg_send);
+        printf("\nSent with success!!\n=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\n");
             //}
 
     }
