@@ -203,7 +203,7 @@ int main(void){
 
 
         //pkg = build_pkg; //pkg to sign
-
+        printf("Pacote para criptografar: %s\n",build_pkg);
 
         // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
