@@ -1,0 +1,125 @@
+# depslib dependency file v1.0
+1497402287 source:/home/marcos/MEGA/gitlab/final/meter/main.cpp
+	"include/mbedtls/config.h"
+	"include/mbedtls/platform.h"
+	<stdio.h>
+	<iostream>
+	"include/mbedtls/pk.h"
+	"include/mbedtls/entropy.h"
+	"include/mbedtls/ctr_drbg.h"
+	"include/mbedtls/error.h"
+	"include/mbedtls/rsa.h"
+	<string.h>
+	<stdio.h>
+	<time.h>
+	<stdlib.h>
+	<unistd.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<sys/types.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	"include/mbedtls/sha256.h"
+	"include/mbedtls/base64.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/pk.h
+	"config.h"
+	"md.h"
+	"rsa.h"
+	"ecp.h"
+	"ecdsa.h"
+
+1497293316 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/config.h
+	"check_config.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/check_config.h
+	<limits.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/md.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/rsa.h
+	"config.h"
+	"bignum.h"
+	"md.h"
+	"threading.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/bignum.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	<stdio.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/threading.h
+	"config.h"
+	<stdlib.h>
+	<pthread.h>
+	"threading_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/ecp.h
+	"bignum.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/ecdsa.h
+	"ecp.h"
+	"md.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/entropy.h
+	"config.h"
+	<stddef.h>
+	"sha512.h"
+	"sha256.h"
+	"threading.h"
+	"havege.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/sha512.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"sha512_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/sha256.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"sha256_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/havege.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/ctr_drbg.h
+	"aes.h"
+	"mbedtls/threading.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/aes.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"aes_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/error.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/platform.h
+	"config.h"
+	"mbedtls/platform_time.h"
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<stddef.h>
+	<stdio.h>
+
+1497367769 source:/home/marcos/MEGA/gitlab/final/meter/meter.cpp
+	"mbedtls/config.h"
+	"mbedtls/platform.h"
+	<stdio.h>
+	"mbedtls/error.h"
+	"mbedtls/entropy.h"
+	"mbedtls/ctr_drbg.h"
+	"mbedtls/md.h"
+	"mbedtls/pk.h"
+	<stdio.h>
+	<string.h>
+
+1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/base64.h
+	<stddef.h>
+

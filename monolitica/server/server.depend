@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1497370201 source:/home/marcos/MEGA/gitlab/final/server/main.cpp
+	<stdio.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<string.h>
+	<arpa/inet.h>
+
+1497395730 source:/home/marcos/MEGA/gitlab/final/server/server.cpp
+	<stdio.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<string.h>
+	<arpa/inet.h>
+
