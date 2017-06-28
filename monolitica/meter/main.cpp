@@ -199,7 +199,7 @@ int main(void){
         char error_str[256]; // variavel de string de erro
 
 
-        snprintf(build_pkg,sizeof(build_pkg),"%s;%s;%s",id_meter,metering,sig); //pkg
+        snprintf(build_pkg,sizeof(build_pkg),"%s;%d;%s",id_meter,metering,sig); //pkg
 
 
         //pkg = build_pkg; //pkg to sign
@@ -207,7 +207,7 @@ int main(void){
 
         // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
-                                (unsigned char *)sig,
+                                (unsigned char *)build_pkg,
                                 olen,
                                 to_send,
                                 &olen,
@@ -237,10 +237,7 @@ int main(void){
             //printf("Assinatura em base64: %s \n\n",dst);
             }
 
-            //printf("Mensagem criptografada: %s\n",dst);
-        // codifica em base 64 para enviar os  dados
 
-        //printf("%s\n",to_send);
 
 
         send(clientSocket, dst, sizeof dst, 0); // envia o pacote para o servidor
