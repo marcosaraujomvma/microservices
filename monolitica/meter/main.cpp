@@ -1,4 +1,4 @@
-/****************** Server CODE ****************/
+/****************** METER CODE ****************/
 // Marcos Araújo
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -113,6 +113,13 @@ int main(void){
     mbedtls_pk_free(&pk);
     unsigned char sig[4096];
 
+
+    mbedtls_pk_context pk_pub;//para a chave publica
+    mbedtls_pk_init( &pk_pub );
+    //mbedtls_pk_free(&pk_pub);
+    //unsigned char sig[4096];
+
+
             /*Entropia*/
      mbedtls_ctr_drbg_context ctr_drbg;
      mbedtls_ctr_drbg_free(&ctr_drbg);
@@ -138,27 +145,6 @@ int main(void){
     size_t olen = 0;
 
 
-    //codigo de envio
-
-
-
-
-
-
-//	  send(clientSocket, content, sizeof(content), 0);
-
-
-	  /*---- Read the message from the server into the buffer ----*/
-	  //recv(clientSocket, buffer,1048576, 0);
-
-	  /*---- Print the received message ----*/
-	  //printf("Data received: %s\n\n",buffer);
-	  //close(clientSocket);
-
-
-    //fim do codigo de envio de dados
-
-
 
     if ((mbedtls_pk_parse_keyfile(&pk,"keys/meter_sign",NULL))==0){
         printf("LOADED PRIVATE KEY\n");
@@ -166,6 +152,27 @@ int main(void){
     }else{
         printf("ERRO!!! NO LOAD PRIVATE KEY\n");
     }
+
+    unsigned char** buf;
+    size_t bu = 0;
+
+    if ((mbedtls_pk_load_file("keys/cloud_public.pem",buf, &bu ))==0){
+        printf("LOADED CLOUD PUBLIC KEY\n");
+
+    }else{
+        printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
+    }
+
+    printf("");
+/*
+
+    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,"keys/00cloud_public.pem"))==0){
+        printf("LOADED CLOUD PUBLIC KEY\n");
+
+    }else{
+        printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
+    }
+*/
 
 
     printf("Enter the meter id:\n\n");
