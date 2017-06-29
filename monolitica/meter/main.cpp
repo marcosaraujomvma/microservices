@@ -239,7 +239,7 @@ int main(void){
 
 
 
-
+        printf("base64: %s\n",dst);
         send(clientSocket, dst, sizeof dst, 0); // envia o pacote para o servidor
         close(clientSocket);
 

@@ -28,3 +28,18 @@
 1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/error.h
 	<stddef.h>
 
+1498677261 source:/home/gi/marcos/microservices/monolitica/server/server.cpp
+	<stdio.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<string.h>
+	<arpa/inet.h>
+	"include/mbedtls/base64.h"
+	"include/mbedtls/error.h"
+
+1498668539 /home/gi/marcos/microservices/monolitica/server/include/mbedtls/base64.h
+	<stddef.h>
+
+1498668539 /home/gi/marcos/microservices/monolitica/server/include/mbedtls/error.h
+	<stddef.h>
+

@@ -10,10 +10,10 @@
 
 int main(){
   int welcomeSocket, newSocket; // criar o socket
-  char buffer[8192]; // buffer do socket
-  memset(buffer, '\0',8192);
-  char buffer_rec[8192]; // bufer que rece os dados
-  memset(buffer_rec, '\0',8192); // zera o buffer que receb os dados
+ unsigned char buffer[1368]; // buffer do socket
+  memset(buffer, '\0',1368);
+  unsigned char buffer_rec[1368]; // bufer que rece os dados
+  memset(buffer_rec, '\0',1368); // zera o buffer que receb os dados
   struct sockaddr_in serverAddr;
   struct sockaddr_storage serverStorage;
   socklen_t addr_size;
@@ -42,7 +42,7 @@ int main(){
     printf("Error\n");
 
 
-  unsigned char b64decode[2048]; // variavel de saida do decode do base 64
+  unsigned char b64decode[4096]; // variavel de saida do decode do base 64
   size_t b64olen = 0;
 
   int ret = 0;
@@ -54,15 +54,15 @@ int main(){
 	  addr_size = sizeof serverStorage;
 	  newSocket = accept(welcomeSocket, (struct sockaddr *) &serverStorage, &addr_size);
 
-      recv(newSocket, buffer_rec,8192, 0);
+      recv(newSocket, buffer_rec, 1368, 0);
       //printf("%s",
       printf("Tamanho do buffer  %i",sizeof buffer_rec);
 	  printf("Data received: %s\n\n",buffer_rec);
 
 	  ret = mbedtls_base64_decode(  b64decode,
-                                    sizeof(b64olen),
+                                    sizeof(b64decode),
                                     &b64olen,
-                                    (const unsigned char*)buffer_rec,
+                                    buffer_rec,
                                     sizeof(buffer_rec));
 
      if (ret == 0){
@@ -76,7 +76,7 @@ int main(){
     /*---- Send message to the socket of the incoming connection ----*/
 
 
-	  strcpy(buffer,"Hello World\n");
+	  //strcpy(buffer,"Hello World\n");
 	  send(newSocket,buffer,13,0);
 	  //close(newSocket);
 	}
