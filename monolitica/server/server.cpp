@@ -7,10 +7,11 @@
 #include <arpa/inet.h>
 #include "include/mbedtls/base64.h"
 #include "include/mbedtls/error.h"
+#include "include/mbedtls/pk.h"
 
 int main(){
   int welcomeSocket, newSocket; // criar o socket
- unsigned char buffer[1368]; // buffer do socket
+  unsigned char buffer[1368]; // buffer do socket
   memset(buffer, '\0',1368);
   unsigned char buffer_rec[1368]; // bufer que rece os dados
   memset(buffer_rec, '\0',1368); // zera o buffer que receb os dados
@@ -41,12 +42,30 @@ int main(){
   else
     printf("Error\n");
 
+    //geração da estrtura da chave privada da nuvem
+    mbedtls_pk_context pk;
+    mbedtls_pk_init( &pk );
+    mbedtls_pk_free(&pk);
+
+      // carregar a chave privada da nuvem
+    if ((mbedtls_pk_parse_keyfile(&pk,
+                                "keys/cloud_private.pem",
+                                NULL))==0){
+        printf("LOADED PRIVATE KEY\n");
+
+    }else{
+        printf("ERRO!!! NO LOAD PRIVATE KEY\n");
+    }
+
+
+
 
   unsigned char b64decode[4096]; // variavel de saida do decode do base 64
   size_t b64olen = 0;
 
   int ret = 0;
   char error_str[256];
+
 
 
    while (1){
