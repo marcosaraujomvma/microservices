@@ -47,7 +47,14 @@ int main(){
     mbedtls_pk_init( &pk );
     mbedtls_pk_free(&pk);
 
-      // carregar a chave privada da nuvem
+    // carregar a chave privada da nuvem
+
+    mbedtls_pk_context pk_pub;//para a chave publica
+    mbedtls_pk_init( &pk_pub );
+    mbedtls_pk_free(&pk_pub);
+    // fim da geração da estrutu da chave publica
+
+
     if ((mbedtls_pk_parse_keyfile(&pk,
                                 "keys/cloud_private.pem",
                                 NULL))==0){
@@ -55,6 +62,16 @@ int main(){
 
     }else{
         printf("ERRO!!! NO LOAD PRIVATE KEY\n");
+    }
+
+
+    // carrega a chave publica do medidor
+    if ((mbedtls_pk_parse_public_keyfile(&pk_pub,
+                                        "keys/meter_public.pem"))==0){
+        printf("LOADED METER PUBLIC KEY\n");
+
+    }else{
+        printf("ERRO!!! NO LOAD CLOUD PUBLIC KEY\n");
     }
 
 
@@ -95,6 +112,8 @@ int main(){
     /*---- Send message to the socket of the incoming connection ----*/
 
 
+    ret = mbedtls_pk_decrypt(&pk,
+                                )
 	  //strcpy(buffer,"Hello World\n");
 	  send(newSocket,buffer,13,0);
 	  //close(newSocket);

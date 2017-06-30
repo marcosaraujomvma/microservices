@@ -13,7 +13,7 @@
 	<string.h>
 	<arpa/inet.h>
 
-1498759329 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/server.cpp
+1498759713 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/server.cpp
 	<stdio.h>
 	<sys/socket.h>
 	<netinet/in.h>
@@ -21,6 +21,7 @@
 	<arpa/inet.h>
 	"include/mbedtls/base64.h"
 	"include/mbedtls/error.h"
+	"include/mbedtls/pk.h"
 
 1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/base64.h
 	<stddef.h>
@@ -42,4 +43,45 @@
 
 1498668539 /home/gi/marcos/microservices/monolitica/server/include/mbedtls/error.h
 	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/pk.h
+	"config.h"
+	"md.h"
+	"rsa.h"
+	"ecp.h"
+	"ecdsa.h"
+
+1497293316 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/config.h
+	"check_config.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/check_config.h
+	<limits.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/md.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/rsa.h
+	"config.h"
+	"bignum.h"
+	"md.h"
+	"threading.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/bignum.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	<stdio.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/threading.h
+	"config.h"
+	<stdlib.h>
+	<pthread.h>
+	"threading_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/ecp.h
+	"bignum.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/ecdsa.h
+	"ecp.h"
+	"md.h"
 

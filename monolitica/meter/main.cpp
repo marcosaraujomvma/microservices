@@ -89,7 +89,7 @@ int main(void){
 
     // carregar a chave privada do medidorr
     if ((mbedtls_pk_parse_keyfile(&pk,
-                                "keys/meter_sign",
+                                "keys/meter_private.pem",
                                 NULL))==0){
         printf("LOADED PRIVATE KEY\n");
 
