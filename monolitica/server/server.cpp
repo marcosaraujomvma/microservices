@@ -8,13 +8,15 @@
 #include "include/mbedtls/base64.h"
 #include "include/mbedtls/error.h"
 #include "include/mbedtls/pk.h"
+#include "include/mbedtls/entropy.h"
+#include "include/mbedtls/ctr_drbg.h"
 
 int main(){
   int welcomeSocket, newSocket; // criar o socket
-  unsigned char buffer[1368]; // buffer do socket
-  memset(buffer, '\0',1368);
-  unsigned char buffer_rec[1368]; // bufer que rece os dados
-  memset(buffer_rec, '\0',1368); // zera o buffer que receb os dados
+  unsigned char buffer[136800]; // buffer do socket
+  memset(buffer, '\0',136800);
+  unsigned char buffer_rec[16800]; // bufer que rece os dados
+  memset(buffer_rec, '\0',sizeof(buffer_rec)); // zera o buffer que receb os dados
   struct sockaddr_in serverAddr;
   struct sockaddr_storage serverStorage;
   socklen_t addr_size;
@@ -55,6 +57,24 @@ int main(){
     // fim da geração da estrutu da chave publica
 
 
+
+                /*Geração da entropia*/
+     mbedtls_ctr_drbg_context ctr_drbg;
+     mbedtls_ctr_drbg_free(&ctr_drbg);
+     mbedtls_ctr_drbg_init( &ctr_drbg );
+
+     mbedtls_entropy_context entropy;
+     mbedtls_entropy_init(&entropy);
+
+     mbedtls_ctr_drbg_seed(&ctr_drbg,
+                            mbedtls_entropy_func,
+                            &entropy,
+                            NULL,
+                            0);
+
+            /*FIM Entropia*/
+
+
     if ((mbedtls_pk_parse_keyfile(&pk,
                                 "keys/cloud_private.pem",
                                 NULL))==0){
@@ -80,9 +100,10 @@ int main(){
   unsigned char b64decode[4096]; // variavel de saida do decode do base 64
   size_t b64olen = 0;
 
+  size_t olen = 0;
   int ret = 0;
   char error_str[256];
-
+  unsigned char* output_decrypt;
 
 
    while (1){
@@ -90,10 +111,11 @@ int main(){
 	  addr_size = sizeof serverStorage;
 	  newSocket = accept(welcomeSocket, (struct sockaddr *) &serverStorage, &addr_size);
 
-      recv(newSocket, buffer_rec, 1368, 0);
+      recv(newSocket, buffer_rec, sizeof(buffer_rec), 0);
       //printf("%s",
       printf("Tamanho do buffer  %i",sizeof buffer_rec);
 	  printf("Data received: %s\n\n",buffer_rec);
+/*
 
 	  ret = mbedtls_base64_decode(  b64decode,
                                     sizeof(b64decode),
@@ -109,11 +131,28 @@ int main(){
         mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
         printf("%s\n",error_str);// printa o erro
         }
+    printf("======\nSAIDA DO BASE 64  %s\n\n======",b64decode);
     /*---- Send message to the socket of the incoming connection ----*/
 
+    size_t b64olen = 0;
 
     ret = mbedtls_pk_decrypt(&pk,
-                                )
+                            (unsigned char*)buffer_rec,
+                            sizeof(buffer_rec),
+                            (unsigned char*)output_decrypt,
+                            &olen,
+                            sizeof(output_decrypt),
+                            mbedtls_ctr_drbg_random,
+                            &ctr_drbg);
+
+     if (ret == 0){
+        printf("RSA decodificado com sucesso!!\n");
+        }else{
+        printf("ERRO de decodificar o RSA!\n");
+
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+        }
 	  //strcpy(buffer,"Hello World\n");
 	  send(newSocket,buffer,13,0);
 	  //close(newSocket);

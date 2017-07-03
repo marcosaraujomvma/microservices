@@ -203,7 +203,7 @@ int main(void){
 
 
         //pkg = build_pkg; //pkg to sign
-        printf("Pacote para criptografar: %s\n",build_pkg);
+        //printf("Pacote para criptografar: %s\n",build_pkg);
 
         // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
@@ -225,7 +225,7 @@ int main(void){
 
         mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
         printf("%s\n",error_str);// printa o erro
-
+        printf("SAIDA DO CYPTOGRAFADO  %s\n\n",to_send);
 
         // codifica em base 64 para enviar os  dados
         if ((mbedtls_base64_encode(dst,
@@ -239,8 +239,9 @@ int main(void){
 
 
 
-        printf("base64: %s\n",dst);
-        send(clientSocket, dst, sizeof dst, 0); // envia o pacote para o servidor
+        //printf("base64: %s\n",dst);
+        printf("TAMANHO DO ENVIO DE DADOS: %i",to_send);
+        send(clientSocket, to_send, sizeof to_send, 0); // envia o pacote para o servidor
         close(clientSocket);
 
         printf("\nSent with success!!\n\

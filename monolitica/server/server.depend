@@ -13,7 +13,7 @@
 	<string.h>
 	<arpa/inet.h>
 
-1498759713 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/server.cpp
+1499087883 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/server.cpp
 	<stdio.h>
 	<sys/socket.h>
 	<netinet/in.h>
@@ -22,6 +22,8 @@
 	"include/mbedtls/base64.h"
 	"include/mbedtls/error.h"
 	"include/mbedtls/pk.h"
+	"include/mbedtls/entropy.h"
+	"include/mbedtls/ctr_drbg.h"
 
 1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/base64.h
 	<stddef.h>
@@ -84,4 +86,37 @@
 1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/ecdsa.h
 	"ecp.h"
 	"md.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/entropy.h
+	"config.h"
+	<stddef.h>
+	"sha512.h"
+	"sha256.h"
+	"threading.h"
+	"havege.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/sha512.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"sha512_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/sha256.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"sha256_alt.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/havege.h
+	<stddef.h>
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/ctr_drbg.h
+	"aes.h"
+	"mbedtls/threading.h"
+
+1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/aes.h
+	"config.h"
+	<stddef.h>
+	<stdint.h>
+	"aes_alt.h"
 
