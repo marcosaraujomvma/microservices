@@ -36,15 +36,17 @@
 #include <arpa/inet.h>
 #include "include/mbedtls/sha256.h"
 #include "include/mbedtls/base64.h"
+#include <time.h>
 
 int main(void){
 
     int metering;// value of mettering
     char id_meter[100]; // identificafdor unico do medidor
     char* pkg;
-    char build_pkg[2048];// auxiliar
+    unsigned char build_pkg[2048];
+    memset(build_pkg, NULL,2048);// auxiliar
     char* pkg_send;
-
+    int timestamp;
 
 
     unsigned char content;
@@ -61,9 +63,11 @@ int main(void){
     mbedtls_pk_free(&pk_pub);
     // fim da geração da estrutu da chave publica
 
-    unsigned char sig[4096]; // saida da assinatura, essa é a vareavel de saida
-    unsigned char to_send[1024]; // variavel de saida da criptografia
-
+    unsigned char sig[1024];
+     // saida da assinatura, essa é a vareavel de saida
+    unsigned char to_send[4096], out_dec[4096]; // variavel de saida da criptografia
+    memset(to_send, NULL,4096);
+    memset(out_dec, NULL,4096);
             /*Geração da entropia*/
      mbedtls_ctr_drbg_context ctr_drbg;
      mbedtls_ctr_drbg_free(&ctr_drbg);
@@ -114,14 +118,16 @@ int main(void){
     printf("Enter the meter id:\n\n");
     fgets(id_meter,100,stdin);
 
+    unsigned char output_decrypt[4096];
+
     while(1){
 
         // socket aqui
 
 
       int clientSocket;
-	  char buffer[1048576];// buffer do socket para enviar ate 1 mega
-	  memset(buffer, '\0',1048576); // zera o buffer do socket
+	  char buffer[4096];// buffer do socket para enviar ate 1 mega
+	  memset(buffer, NULL,4096); // zera o buffer do socket
       struct sockaddr_in serverAddr; // estrutura do socket
       socklen_t addr_size;
 
@@ -155,26 +161,29 @@ int main(void){
 
         // generate random number to meter
         metering = 1 + ( rand() % 100 );
+        timestamp = time(NULL);
+        snprintf ((char*)build_pkg,sizeof(build_pkg),"%s;%d;%i",id_meter,metering,timestamp); //pkg
 
-        snprintf (build_pkg,sizeof(build_pkg),"%s;%d",id_meter,metering); //pkg
 
+        //pkg = build_pkg; //pkg to sign
 
-        pkg = build_pkg; //pkg to sign
-
+        //printf("BUILD 1 %s\n", build_pkg);
+        //printf("TAMANHO BUILD 1 %i\n", sizeof build_pkg);
 
 
         /* Generates the hash */
-        int tamanho = sizeof((const unsigned char*)pkg);
+        int tamanho = sizeof(build_pkg);
         int is224 = 0;
         unsigned char output[32];
         memset(output, '0',32);
 
-        mbedtls_sha256((const unsigned char*)pkg,
+        mbedtls_sha256(build_pkg,
                         tamanho,
                         output,
                         is224);
         /* fim Generates the hash */
 
+        //printf("HASH SHA-256 %s\n", output);
 
 
 
@@ -188,7 +197,7 @@ int main(void){
                             mbedtls_ctr_drbg_random,
                             &ctr_drbg))==0){
 
-            printf("Success in the process of signing! \n\n");
+            printf("Success in the process of signing!\n\n");
         }
         // fim do processo de criptografar o hash
 
@@ -199,17 +208,22 @@ int main(void){
         char error_str[256]; // variavel de string de erro
 
 
-        snprintf(build_pkg,sizeof(build_pkg),"%s;%d;%s",id_meter,metering,sig); //pkg
+        snprintf((char*)build_pkg,sizeof(build_pkg),"%s;%i;%i;%s",id_meter,metering,timestamp,sig);
+        printf("BUILD 2 %s\n", build_pkg);//pkg
 
 
+        //printf("TAMANHO DA ASSINATURA %i\n",sizeof sig);
+
+        //printf("ASSINATURA %s\n",sig);
         //pkg = build_pkg; //pkg to sign
         //printf("Pacote para criptografar: %s\n",build_pkg);
-
+        //printf("PACOTE TAMANHO: %i\n\n",sizeof build_pkg);
+        //printf("PACOTE PARA CRIPTOGRAFAR %s\n",build_pkg);
         // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
-                                (unsigned char *)build_pkg,
+                                (const unsigned char*)build_pkg,
                                 olen,
-                                to_send,
+                                (unsigned char*)to_send,
                                 &olen,
                                 sizeof(to_send),
                                 mbedtls_ctr_drbg_random,
@@ -218,16 +232,75 @@ int main(void){
             printf("Success in the process of CRYPT! \n\n");
         }else{
             printf("ERROOOOOOOOO in the process of CRYPT! \n\n");
+            mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+            printf("%s\n",error_str);// printa o erro
         }
 
-        // FIM processo de criptografar o pacote
 
+        //geração da estrtura da chave privada da nuvem
+        mbedtls_pk_context pk2;
+        mbedtls_pk_init( &pk2 );
+        mbedtls_pk_free(&pk2);
+        if ((mbedtls_pk_parse_keyfile(&pk2,
+                                "keys/cloud_private.pem",
+                                NULL))==0){
+        printf("LOADED PRIVATE KEY\n");
+
+    }else{
+        printf("ERRO!!! NO LOAD PRIVATE KEY\n");
+    }
+
+
+
+        ret = mbedtls_pk_check_pair(&pk_pub, &pk2);
+
+        if (ret == 0){
+        printf("PAR DE CHAVES OK\n\n");
+
+        }else{
+        printf("ERRO NAS CHAVES\n\n");
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+        }
+
+
+
+        size_t b64olen = 0;
+        size_t i = 512;
+        //i = sizeof (to_send);
+
+       printf("OLEN: %i\n",olen);
+       ret = mbedtls_pk_decrypt(&pk2,
+                            (const unsigned char*)to_send,
+                            olen,
+                            (unsigned char*)output_decrypt,
+                            &olen,
+                            sizeof(output_decrypt),
+                            mbedtls_ctr_drbg_random,
+                            &ctr_drbg);
+
+     if (ret == 0){
+            printf("\nRSA decodificado com sucesso!!\n");
+            printf("DECODIFICADO :\n%s\n",output_decrypt);
+
+        }else{
+            printf("ERRO de decodificar o RSA!\n");
+
+            mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+            printf("%s\n",error_str);// printa o erro
+        }
+
+
+
+        // FIM processo de criptografar o pacote
+/*
 
         mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
         printf("%s\n",error_str);// printa o erro
         printf("SAIDA DO CYPTOGRAFADO  %s\n\n",to_send);
 
-        // codifica em base 64 para enviar os  dados
+
+       /* // codifica em base 64 para enviar os  dados
         if ((mbedtls_base64_encode(dst,
                                 sizeof(dst),
                                 &b64olen,
@@ -237,10 +310,12 @@ int main(void){
             //printf("Assinatura em base64: %s \n\n",dst);
             }
 
-
+*/
 
         //printf("base64: %s\n",dst);
-        printf("TAMANHO DO ENVIO DE DADOS: %i",to_send);
+
+        //printf("SAIDA VALOR DO BUFFER PARA A enviar  %s\n\n", to_send);
+        printf("TAMANHO DO ENVIO DE DADOS: %i",sizeof to_send);
         send(clientSocket, to_send, sizeof to_send, 0); // envia o pacote para o servidor
         close(clientSocket);
 

@@ -123,7 +123,7 @@
 1488987184 /home/marcos/MEGA/gitlab/final/meter/include/mbedtls/base64.h
 	<stddef.h>
 
-1499088196 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/meter/main.cpp
+1499172488 source:/home/marcos/MEGA/gitlab/microservicos-c/monolitica/meter/main.cpp
 	"include/mbedtls/config.h"
 	"include/mbedtls/platform.h"
 	<stdio.h>
@@ -145,6 +145,7 @@
 	<arpa/inet.h>
 	"include/mbedtls/sha256.h"
 	"include/mbedtls/base64.h"
+	<time.h>
 
 1497293316 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/meter/include/mbedtls/config.h
 	"check_config.h"

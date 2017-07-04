@@ -13,10 +13,10 @@
 
 int main(){
   int welcomeSocket, newSocket; // criar o socket
-  unsigned char buffer[136800]; // buffer do socket
-  memset(buffer, '\0',136800);
-  unsigned char buffer_rec[16800]; // bufer que rece os dados
-  memset(buffer_rec, '\0',sizeof(buffer_rec)); // zera o buffer que receb os dados
+  unsigned char buffer[4096]; // buffer do socket
+  memset(buffer, NULL,4096);
+  unsigned char buffer_rec[4096]; // bufer que rece os dados
+  memset(buffer_rec, NULL,sizeof(buffer_rec)); // zera o buffer que receb os dados
   struct sockaddr_in serverAddr;
   struct sockaddr_storage serverStorage;
   socklen_t addr_size;
@@ -39,7 +39,7 @@ int main(){
   bind(welcomeSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
 
   /*---- Listen on the socket, with 8192 max connection requests queued ----*/
-  if(listen(welcomeSocket,8192)==0)
+  if(listen(welcomeSocket,4096)==0)
     printf("Listening\n");
   else
     printf("Error\n");
@@ -103,7 +103,8 @@ int main(){
   size_t olen = 0;
   int ret = 0;
   char error_str[256];
-  unsigned char* output_decrypt;
+  unsigned char output_decrypt[4096];
+  memset(output_decrypt,NULL,sizeof output_decrypt);
 
 
    while (1){
@@ -113,8 +114,8 @@ int main(){
 
       recv(newSocket, buffer_rec, sizeof(buffer_rec), 0);
       //printf("%s",
-      printf("Tamanho do buffer  %i",sizeof buffer_rec);
-	  printf("Data received: %s\n\n",buffer_rec);
+      printf("Tamanho do buffer  %i\n",sizeof buffer_rec);
+	  //printf("Data received: %s\n\n",buffer_rec);
 /*
 
 	  ret = mbedtls_base64_decode(  b64decode,
@@ -134,19 +135,20 @@ int main(){
     printf("======\nSAIDA DO BASE 64  %s\n\n======",b64decode);
     /*---- Send message to the socket of the incoming connection ----*/
 
-    size_t b64olen = 0;
+    size_t olen_dec = 512;
 
     ret = mbedtls_pk_decrypt(&pk,
-                            (unsigned char*)buffer_rec,
-                            sizeof(buffer_rec),
-                            (unsigned char*)output_decrypt,
-                            &olen,
+                            (const unsigned char*)buffer_rec,
+                            olen_dec,
+                            output_decrypt,
+                            &olen_dec,
                             sizeof(output_decrypt),
                             mbedtls_ctr_drbg_random,
                             &ctr_drbg);
 
      if (ret == 0){
-        printf("RSA decodificado com sucesso!!\n");
+        printf("\nRSA decodificado com sucesso!!\n");
+        printf("DECODIFICADO:\n %s\n", buffer_rec);
         }else{
         printf("ERRO de decodificar o RSA!\n");
 
