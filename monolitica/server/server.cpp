@@ -10,12 +10,14 @@
 #include "include/mbedtls/pk.h"
 #include "include/mbedtls/entropy.h"
 #include "include/mbedtls/ctr_drbg.h"
+#include "include/mbedtls/sha256.h"
+
 
 int main(){
   int welcomeSocket, newSocket; // criar o socket
-  unsigned char buffer[4096]; // buffer do socket
-  memset(buffer, NULL,4096);
-  unsigned char buffer_rec[4096]; // bufer que rece os dados
+  unsigned char buffer[1000]; // buffer do socket
+  memset(buffer, NULL, 1000);
+  unsigned char buffer_rec[1000]; // bufer que rece os dados
   memset(buffer_rec, NULL,sizeof(buffer_rec)); // zera o buffer que receb os dados
   struct sockaddr_in serverAddr;
   struct sockaddr_storage serverStorage;
@@ -97,13 +99,13 @@ int main(){
 
 
 
-  unsigned char b64decode[4096]; // variavel de saida do decode do base 64
+  unsigned char b64decode[512]; // variavel de saida do decode do base 64
   size_t b64olen = 0;
 
   size_t olen = 0;
   int ret = 0;
   char error_str[256];
-  unsigned char output_decrypt[4096];
+  unsigned char output_decrypt[512];
   memset(output_decrypt,NULL,sizeof output_decrypt);
 
 
@@ -116,13 +118,14 @@ int main(){
       //printf("%s",
       printf("Tamanho do buffer  %i\n",sizeof buffer_rec);
 	  //printf("Data received: %s\n\n",buffer_rec);
-/*
+
+    printf("conteudo buffer: %s\n", buffer_rec);
 
 	  ret = mbedtls_base64_decode(  b64decode,
                                     sizeof(b64decode),
                                     &b64olen,
                                     buffer_rec,
-                                    sizeof(buffer_rec));
+                                    684);
 
      if (ret == 0){
         printf("Base 64 decodificado com sucesso!!\n");
@@ -138,7 +141,7 @@ int main(){
     size_t olen_dec = 512;
 
     ret = mbedtls_pk_decrypt(&pk,
-                            buffer_rec,
+                            b64decode,
                             olen_dec,
                             output_decrypt,
                             &olen_dec,
@@ -148,13 +151,67 @@ int main(){
 
      if (ret == 0){
         printf("\nRSA decodificado com sucesso!!\n");
-        printf("DECODIFICADO:\n %s\n", buffer_rec);
+        printf("DECODIFICADO:\n %s\n", output_decrypt);
         }else{
         printf("ERRO de decodificar o RSA!\n");
 
         mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
         printf("%s\n",error_str);// printa o erro
         }
+
+       char * pch;
+           unsigned char stringBuffer[512];
+        memset(stringBuffer, NULL, 512);
+        int strLength = 0;
+        //printf ("Splitting string \"%s\" into tokens:\n",output_decrypt);
+        pch = strtok ((char*)output_decrypt,";");
+        printf("id: %s\n",pch);
+        strLength += snprintf((char*)stringBuffer + strLength, 512-strLength, "%s;",pch);
+        pch = strtok (NULL, ";");
+        printf("medicao: %s\n",pch);
+        strLength += snprintf((char*)stringBuffer + strLength, 512-strLength, "%s;",pch);
+        pch = strtok (NULL, ";");
+        printf("timestamp: %s\n",pch);
+        strLength += snprintf((char*)stringBuffer + strLength, 512-strLength, "%s;",pch);
+        pch = strtok (NULL, ";");
+        printf("assinatura: %s\n",pch);
+
+      unsigned char buff_sig[128];
+      ret = mbedtls_base64_decode(  buff_sig,
+                                    sizeof(buff_sig),
+                                    &b64olen,
+                                    (unsigned char*)pch,
+                                    172);
+
+
+
+        unsigned char output[32];
+        memset(output, NULL,32);
+
+        mbedtls_sha256(stringBuffer,
+                        strLength,
+                        output,
+                        0);
+
+
+
+        /*
+        ret = mbedtls_base64_encode(buff_sig, 200, &olen, (unsigned char*)pch, sizeof(pch));
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+        //strLength += snprintf((char*)stringBuffer + strLength, 512-strLength, "%s",sig);
+        */
+        //printf("\nassinatura base64: %s\n",(char*)buff_sig);
+
+
+       ret = mbedtls_pk_verify (&pk_pub, MBEDTLS_MD_SHA256, output, 32, buff_sig, sizeof(buff_sig));
+       if (ret){
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+       } else
+       printf("assinatura válida\n");// printa o erro
+
+
 	  //strcpy(buffer,"Hello World\n");
 	  send(newSocket,buffer,13,0);
 	  //close(newSocket);

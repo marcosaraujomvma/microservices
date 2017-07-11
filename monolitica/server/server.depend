@@ -31,7 +31,7 @@
 1488987184 /home/marcos/MEGA/gitlab/microservicos-c/monolitica/server/include/mbedtls/error.h
 	<stddef.h>
 
-1499781080 source:/home/gi/marcos/microservices/monolitica/server/server.cpp
+1499796945 source:/home/gi/marcos/microservices/monolitica/server/server.cpp
 	<stdio.h>
 	<sys/socket.h>
 	<netinet/in.h>
@@ -42,6 +42,7 @@
 	"include/mbedtls/pk.h"
 	"include/mbedtls/entropy.h"
 	"include/mbedtls/ctr_drbg.h"
+	"include/mbedtls/sha256.h"
 
 1498668539 /home/gi/marcos/microservices/monolitica/server/include/mbedtls/base64.h
 	<stddef.h>
