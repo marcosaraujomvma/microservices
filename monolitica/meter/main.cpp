@@ -40,11 +40,15 @@
 
 int main(void){
 
+    unsigned char stringBuffer[10000];
+    int strLength = 0;
+
+
     int metering;// value of mettering
     char id_meter[100]; // identificafdor unico do medidor
     char* pkg;
     unsigned char build_pkg[2048];
-    memset(build_pkg, NULL,2048);// auxiliar
+    //memset(build_pkg, NULL,2048);// auxiliar
     char* pkg_send;
     int timestamp;
 
@@ -55,22 +59,22 @@ int main(void){
     //geração da estrtura da chave publica
     mbedtls_pk_context pk;
     mbedtls_pk_init( &pk );
-    mbedtls_pk_free(&pk);
+    //mbedtls_pk_free(&pk);
     //geração da estrtura da chave publica
 
     mbedtls_pk_context pk_pub;//para a chave publica
     mbedtls_pk_init( &pk_pub );
-    mbedtls_pk_free(&pk_pub);
+    //mbedtls_pk_free(&pk_pub);
     // fim da geração da estrutu da chave publica
 
     unsigned char sig[1024];
      // saida da assinatura, essa é a vareavel de saida
     unsigned char to_send[4096], out_dec[4096]; // variavel de saida da criptografia
-    memset(to_send, NULL,4096);
-    memset(out_dec, NULL,4096);
+    memset(to_send, 0,4096);
+    memset(out_dec, 0,4096);
             /*Geração da entropia*/
      mbedtls_ctr_drbg_context ctr_drbg;
-     mbedtls_ctr_drbg_free(&ctr_drbg);
+     //mbedtls_ctr_drbg_free(&ctr_drbg);
      mbedtls_ctr_drbg_init( &ctr_drbg );
 
      mbedtls_entropy_context entropy;
@@ -117,8 +121,9 @@ int main(void){
 
     printf("Enter the meter id:\n\n");
     fgets(id_meter,100,stdin);
+    strtok(id_meter, "\n");
 
-    unsigned char output_decrypt[4096];
+    //unsigned char output_decrypt[4096];
 
     while(1){
 
@@ -126,8 +131,8 @@ int main(void){
 
 
       int clientSocket;
-	  char buffer[4096];// buffer do socket para enviar ate 1 mega
-	  memset(buffer, NULL,4096); // zera o buffer do socket
+	  unsigned char buffer[1000000];// buffer do socket para enviar ate 1 mega
+	  memset(buffer, NULL,1000000); // zera o buffer do socket
       struct sockaddr_in serverAddr; // estrutura do socket
       socklen_t addr_size;
 
@@ -162,7 +167,7 @@ int main(void){
         // generate random number to meter
         metering = 1 + ( rand() % 100 );
         timestamp = time(NULL);
-        snprintf ((char*)build_pkg,sizeof(build_pkg),"%s;%d;%i",id_meter,metering,timestamp); //pkg
+        //snprintf ((char*)build_pkg,sizeof(build_pkg),"%s;%d;%i",id_meter,metering,timestamp); //pkg
 
 
         //pkg = build_pkg; //pkg to sign
@@ -177,7 +182,7 @@ int main(void){
         unsigned char output[32];
         memset(output, '0',32);
 
-        mbedtls_sha256(build_pkg,
+        mbedtls_sha256((unsigned char*)build_pkg,
                         tamanho,
                         output,
                         is224);
@@ -208,9 +213,24 @@ int main(void){
         char error_str[256]; // variavel de string de erro
 
 
-        snprintf((char*)build_pkg,sizeof(build_pkg),"%s;%i;%i;%s",id_meter,metering,timestamp,sig);
-        printf("BUILD 2 %s\n", build_pkg);//pkg
+        //snprintf((char*)build_pkg,sizeof(build_pkg),"%s;%i;%i;%s",id_meter,metering,timestamp,sig);
+        //snprintf((char*)build_pkg,sizeof(build_pkg),"%s;%i",id_meter,metering);
+        memset(stringBuffer, 0, 10000);
+        strLength = 0;
+        strLength += snprintf((char*)stringBuffer + strLength, 10000-strLength, "%s;",id_meter);
+        strLength += snprintf((char*)stringBuffer + strLength, 10000-strLength, "%i;",metering);
+        strLength += snprintf((char*)stringBuffer + strLength, 10000-strLength, "%i",timestamp);
 
+        //build_pkg[0] = 97;
+        //build_pkg[1] = 98;
+        printf("BUILD 2 %s\n", stringBuffer);//pkg
+
+
+        //mbedtls_base64_encode( buffer, sizeof(buffer), &olen,stringBuffer, strLength);
+        //printf("BUILD 2 base64 %s\n", buffer);//pkg
+
+        //int size_pak = olen;
+        //printf("size pak: %i\n", size_pak);
 
         //printf("TAMANHO DA ASSINATURA %i\n",sizeof sig);
 
@@ -221,9 +241,9 @@ int main(void){
         //printf("PACOTE PARA CRIPTOGRAFAR %s\n",build_pkg);
         // processo de criptografar o pacote
         if ((ret = mbedtls_pk_encrypt(&pk_pub,
-                                (const unsigned char*)build_pkg,
-                                olen,
-                                (unsigned char*)to_send,
+                                stringBuffer,
+                                strLength,
+                                to_send,
                                 &olen,
                                 sizeof(to_send),
                                 mbedtls_ctr_drbg_random,
@@ -236,11 +256,19 @@ int main(void){
             printf("%s\n",error_str);// printa o erro
         }
 
+        int size_crypt = olen;
+        printf("size crypt: %i\n", size_crypt);
+
+        ret = mbedtls_base64_encode( buffer, size_crypt, &olen,to_send, sizeof(to_send));
+        mbedtls_strerror(ret, error_str, sizeof error_str);//verificar os erros
+        printf("%s\n",error_str);// printa o erro
+
+        printf("base64: %s\n", buffer);//pkg
 
         //geração da estrtura da chave privada da nuvem
         mbedtls_pk_context pk2;
         mbedtls_pk_init( &pk2 );
-        mbedtls_pk_free(&pk2);
+        //mbedtls_pk_free(&pk2);
         if ((mbedtls_pk_parse_keyfile(&pk2,
                                 "keys/cloud_private.pem",
                                 NULL))==0){
@@ -271,17 +299,19 @@ int main(void){
 
        printf("OLEN: %i\n",olen);
        ret = mbedtls_pk_decrypt(&pk2,
-                            (const unsigned char*)to_send,
-                            olen,
-                            (unsigned char*)output_decrypt,
+                            to_send,
+                            512,
+                            out_dec,
                             &olen,
-                            sizeof(output_decrypt),
+                            sizeof(out_dec),
                             mbedtls_ctr_drbg_random,
                             &ctr_drbg);
 
      if (ret == 0){
             printf("\nRSA decodificado com sucesso!!\n");
-            printf("DECODIFICADO :\n%s\n",output_decrypt);
+            printf("to_send: %s\n",to_send);
+            printf("DECODIFICADO: %s\n",out_dec);
+            printf("size: %i\n",sizeof(out_dec));
 
         }else{
             printf("ERRO de decodificar o RSA!\n");

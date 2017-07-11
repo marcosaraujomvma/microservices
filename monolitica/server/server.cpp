@@ -138,7 +138,7 @@ int main(){
     size_t olen_dec = 512;
 
     ret = mbedtls_pk_decrypt(&pk,
-                            (const unsigned char*)buffer_rec,
+                            buffer_rec,
                             olen_dec,
                             output_decrypt,
                             &olen_dec,
